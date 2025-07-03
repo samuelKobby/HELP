@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Tavus Demo",
-  description: "Healthcare video consultations powered by Tavus AI",
+  title: "First Aid Help",
+  description: "First Aid Help powered by Tavus AI",
 };
 
 export default function RootLayout({

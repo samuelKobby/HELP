@@ -21,13 +21,13 @@ interface ConversationResponse {
 
 const TAVUS_API_KEY = process.env.TAVUS_API_KEY
 const REPLICA_IDS = {
-  Ella: 'r6ca16dbe104',
-  Navio: 'rf4703150052'
+  Ella: 'rfb51183fe',
+  Kay: 'rfa77d37dfeb'
 } as const;
 
 const PERSONA_IDS = {
-  Ella: 'p2b3e5b9e3a6',
-  Navio: 'pe24d0c25548'
+  Ella: 'pf7ee746fd8a',
+  Kay: 'pc86ba205bea'
 } as const;
 
 // Add languages array
@@ -168,14 +168,14 @@ function Layout({ children }: { children: React.ReactNode }) {
           e.preventDefault();
           window.location.reload();
         }}
-        className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+        className="fixed top-4 left-2 z-50"
       >
         <div className="relative">
-          <div className="absolute inset-0 bg-pink-500 rounded-full filter blur-xl animate-pulse"></div>
+          <div className="absolute inset-0 bg-pink-500  filter blur-xl animate-pulse"></div>
           <img 
             src="/tavus.png" 
             alt="Tavus Logo" 
-            className="w-36 relative"
+            className="w-28 relative"
           />
         </div>
       </a>
@@ -266,44 +266,20 @@ export default function Home() {
           >
             <div className="min-h-screen">
               <div className="flex items-center justify-center min-h-screen p-4">
-                <div className="relative w-full max-w-[90%] lg:max-w-[800px]">
+                <div className="relative w-full max-w-[95vw] md:max-w-[90vw] lg:max-w-[80vw] xl:max-w-[90vw]">
                   <div className="absolute inset-0 bg-pink-500/30 rounded-3xl filter blur-3xl"></div>
-                  <Card className="relative w-full shadow-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50">
-                    <CardHeader className="space-y-1 pb-6">
-                      <CardTitle className="text-2xl font-bold text-center text-gray-900">
-                        Video Call
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all hover:shadow-[0_8px_30px_rgb(236,72,153,0.3)]">
+                  <Card className="relative w-full max-w-[95vw] h-[90vh] shadow-2xl bg-white/90 backdrop-blur-sm border border-gray-200/50">
+                    <CardContent className="p-0 w-full h-[90vh] bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all hover:shadow-[0_8px_30px_rgb(236,72,153,0.3)]">
                         <iframe 
                           src={videoCallUrl} 
                           className="w-full h-full" 
                           allow="camera; microphone"
                         />
-                      </div>
+                    
                       
                       <div className="h-px bg-gradient-to-r from-transparent via-pink-200 to-transparent my-6" />
 
-                      <div className="flex flex-col sm:flex-row items-center justify-center gap-6 px-4">
-                        <div className="flex items-center gap-3">
-                          <span className="text-gray-500 font-medium">Avatar:</span>
-                          <div className={`px-5 py-2 rounded-full shadow-sm border ${getAvatarColorClasses(selectedAvatar)} transition-all hover:scale-105`}>
-                            <span className={`text-${AVATAR_COLORS[selectedAvatar as keyof typeof AVATAR_COLORS]}-700 font-semibold`}>
-                              {selectedAvatar}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                          <span className="text-gray-500 font-medium">Use Case:</span>
-                          <div className={`px-5 py-2 rounded-full shadow-sm border ${getUseCaseColorClasses(selectedUseCase)} transition-all hover:scale-105`}>
-                            <span className={`text-${USECASE_COLORS[selectedUseCase as keyof typeof USECASE_COLORS]}-700 font-semibold`}>
-                              {selectedUseCase}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                      
                     </CardContent>
                   </Card>
                 </div>
@@ -324,7 +300,7 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
           <CardHeader className="space-y-2">
             <div className="h-4" />
             <div className="flex flex-col items-center justify-center mb-4">
-              <img src="/tavus2.png" alt="Tavus Logo" className="w-44" />
+              <img src="/tavus2.png" alt="Tavus Logo" className="w-50" />
               <div className="h-px w-32 bg-gradient-to-r from-transparent via-pink-200 to-transparent mt-4" />
             </div>
             <div className="h-2" />
@@ -350,8 +326,8 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
   )
 }
 
-const avatars = ['Ella', 'Navio']
-const useCases = ['Ella', 'Navio']
+const avatars = ['Ella', 'Kay']
+const useCases = ['Ella', 'Kay']
 
 function AvatarSelectionWithoutLogo({ onSubmit }: { onSubmit: (avatar: string, useCase: string, language: string, name: string) => void }) {
   const [selectedAvatar, setSelectedAvatar] = useState('')
