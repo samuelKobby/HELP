@@ -180,6 +180,8 @@ function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </a>
       
+      <EmergencyButtons />
+      
       {children}
     </div>
   )
@@ -288,6 +290,7 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+      <EmergencyButtons />
     </Layout>
   )
 }
@@ -457,4 +460,78 @@ function LoadingScreenWithoutLogo() {
       </div>
     </div>
   )
+}
+
+// Add this new component near the other component definitions
+function EmergencyButtons() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleEmergencyCall = (type: 'police' | 'fire' | 'ambulance') => {
+    if (type === 'police') {
+      window.open('tel:191', '_self');
+    } else if (type === 'fire') {
+      window.open('tel:192', '_self');
+    } else if (type === 'ambulance') {
+      window.open('tel:193', '_self');
+    }
+  };
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+            className="mb-4 space-y-3"
+          >
+            <Button
+              onClick={() => handleEmergencyCall('ambulance')}
+              className="w-16 h-16 rounded-full bg-white/80 hover:bg-white text-gray-700 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center justify-center p-2"
+              title="Call Ambulance - 193"
+            >
+              <img src="/amb.png" alt="Ambulance" className="w-12 h-10" />
+              
+            </Button>
+            
+            <Button
+              onClick={() => handleEmergencyCall('fire')}
+              className="w-16 h-16 rounded-full bg-white/80 hover:bg-white text-gray-700 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center justify-center p-2"
+              title="Call Fire Service - 192"
+            >
+              <img src="/fire.png" alt="Fire Service" className="w-12 h-12" />
+              
+            </Button>
+
+            <Button
+              onClick={() => handleEmergencyCall('police')}
+              className="w-16 h-16 rounded-full bg-white/80 hover:bg-white text-gray-700 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col items-center justify-center p-2"
+              title="Call Police - 191"
+            >
+              <img src="/police.webp" alt="Police" className="w-12 h-12" />
+              
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      <Button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className={`w-16 h-16 rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 flex items-center justify-center ${
+          isExpanded 
+            ? 'bg-white/80 hover:bg-white text-gray-700' 
+            : 'bg-white/80 hover:bg-white text-gray-700'
+        }`}
+        title={isExpanded ? "Close Emergency Menu" : "Emergency Services"}
+      >
+        {isExpanded ? (
+          <span className="text-2xl">✕</span>
+        ) : (
+          <img src="/Emerg.png" alt="Emergency" className="w-8 h-8" />
+        )}
+      </Button>
+    </div>
+  );
 }
