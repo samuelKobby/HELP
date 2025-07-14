@@ -1,122 +1,235 @@
-# Tavus Conversational Video Template - Next.js Template for Tavus CVI
+# HELP – AI-Powered First Aid Web App
 
-A modern, customizable Next.js template designed for building applications with [Tavus](https://www.tavus.io/) Conversational Video Intelligence (CVI) service integration. The [Conversational Video Interface (CVI)](https://www.tavus.io/product/conversational-video) enables you to build video conversations with digital twins that can speak, see, and hear - with response times under 600ms. This template provides everything you need to get started with Tavus CVI integration.
+HELP is a voice-enabled, AI-powered progressive web application that guides users through first aid procedures step by step.  
+It is designed to reduce panic and confusion during emergencies by providing a calm, conversational assistant named **Ella** and **Kay**.
 
-## Features
+## 🎯 Purpose
 
-- 🚀 Built with Next.js 14
-- 💅 Styled with Tailwind CSS
-- 🎨 Customizable UI components using shadcn/ui
-- 🔄 Framer Motion animations
-- 🌐 Dead simple API route setup for Tavus integration
-- 📱 Responsive design
-- 🎯 TypeScript support
-- 🛠 Development tools configured (ESLint, Prettier)
+In emergency situations, panic and confusion can be life-threatening. HELP addresses this critical need by providing:
+- **Immediate guidance** for common medical emergencies
+- **Step-by-step instructions** delivered through AI avatars
+- **Voice interaction** to keep hands free during emergencies
+- **Multi-language support** for diverse communities
+- **Emergency contact integration** with local emergency services
 
-## Quick Start
+---
 
-You can start using this template in one of two ways:
+## 🚀 Features
 
-### Option 1: Using create-next-app
+### Core Functionality
+- **Conversational AI Experience**: Powered by Tavus and OpenAI for natural interaction
+- **Dual AI Avatars**: Choose between Ella and Kay for personalized assistance
+- **Voice-Guided Instructions**: Step-by-step first aid for 10+ common emergencies
+- **Multi-Language Support**: Available in English, Spanish, French, German, Italian, Portuguese, Japanese, Korean, Mandarin, and Hindi
+- **Emergency Services Integration**: One-touch calling for Police (191), Fire (192), and Ambulance (193)
 
-```bash
-npx create-next-app@latest your-app-name -e https://github.com/alexbehrens/tavus-public-template
+### Technical Features
+- **Progressive Web App (PWA)**: Offline access and app-like experience
+- **Real-time Video Calls**: HD video interaction with AI avatars
+- **Responsive Design**: Mobile-first approach for accessibility during emergencies
+- **User Confirmation System**: Ensures each step is completed before proceeding
+- **Animated UI**: Smooth transitions and intuitive interface
+
+### Emergency Services
+- **🚑 Ambulance (193)**: Medical emergencies and health crises
+- **🔥 Fire Service (192)**: Fire emergencies and rescue situations  
+- **👮 Police (191)**: Security emergencies and crime reporting
+
+---
+
+## 🛠️ Built With
+
+### Frontend
+- **React.js** – Modern component-based UI framework
+- **Next.js** – Full-stack React framework with SSR
+- **TypeScript** – Type-safe development
+- **Tailwind CSS** – Utility-first CSS framework
+- **Framer Motion** – Animation library for smooth transitions
+
+### AI & Communication
+- **Tavus API** – AI persona video generation and real-time interaction
+- **OpenAI LLM** – Conversational AI and emergency response logic
+- **Axios** – HTTP client for API communication
+
+### Development Tools
+- **ESLint** – Code linting and quality assurance
+- **PostCSS** – CSS processing and optimization
+- **Shadcn/ui** – Modern component library
+
+---
+
+## 🏗️ Project Structure
+
+```
+your-app-name/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   │   └── tavus/         # Tavus integration
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Main application
+├── components/            # Reusable UI components
+│   └── ui/               # Base UI components
+├── lib/                  # Utility functions
+├── public/               # Static assets
+│   ├── 1.png             # Welcome screen screenshot
+│   ├── 2.png             # Avatar selection screenshot
+│   ├── 3.png             # Video call interface screenshot
+│   ├── amb.png           # Ambulance icon
+│   ├── fire.png          # Fire service icon
+│   ├── police.webp       # Police icon
+│   └── Emerg.png         # Emergency services icon
+└── Configuration files
 ```
 
-### Option 2: Using Git
+---
+
+## 📸 Visuals
+
+Below are sample screenshots of the HELP application:
+
+![Home Screen](./public/1.png)  
+![Avatar Selection](./public/2.png) 
+![Video Call Interface](./public/3.png) 
+![Ella AI in Action](https://via.placeholder.com/600x400?text=Ella+AI+Speaking)  
+![Voice Confirmation Prompt](https://via.placeholder.com/600x400?text=Voice+Prompt+Example)
+
+---
+
+## 🚨 Emergency Numbers
+
+This application is configured for emergency services with the following numbers:
+- **Police**: 191
+- **Fire Service**: 192  
+- **Ambulance**: 193
+
+*Note: Emergency numbers may vary by country. Please verify local emergency numbers for your region.*
+
+---
+
+## 📦 Installation & Setup
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn package manager
+- Tavus API key
+- Modern web browser with camera/microphone support
+
+### Local Development
 
 ```bash
-# Clone the repository
-git clone https://github.com/alexbehrens/tavus-public-template.git your-app-name
+# 1. Clone the repository
+git clone https://github.com/samuelKobby/HELP.git
 
-# Navigate to the project directory
+# 2. Navigate into the project folder
 cd your-app-name
 
-# Remove the existing git history
-rm -rf .git
-
-# Initialize a new git repository
-git init
-```
-
-Then, for both options:
-
-1. Install dependencies:
-```bash
+# 3. Install dependencies
 npm install
+
+# 4. Set up environment variables
+cp .env.example .env.local
+# Edit .env.local with your Tavus API key
+
+# 5. Start the development server
+npm run dev
+
+# 6. Open your browser
+# Navigate to http://localhost:3000
 ```
 
-2. Configure your Tavus API key:
+### Environment Variables
 
 Create a `.env.local` file in the root directory:
+
+```env
+TAVUS_API_KEY=your_tavus_api_key_here
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### Build for Production
+
 ```bash
-TAVUS_API_KEY=your_api_key_here
+# Build the application
+npm run build
+
+# Start production server
+npm run start
 ```
 
-You can obtain your API key from the [Tavus Developer Portal](https://docs.tavus.io/sections/introduction). For more information about API setup and usage, refer to the [Tavus Documentation](https://docs.tavus.io/sections/introduction).
+---
 
-3. Update Persona IDs:
+## 🎮 Usage Guide
 
-> ⚠️ **Important**: Before running the application, you need to replace the replica and persona IDs in `app/page.tsx` with your own IDs from the Tavus platform. The current IDs are placeholders and won't work:
+### Getting Started
+1. **Launch the App**: Open HELP in your web browser
+2. **Enter Your Name**: Provide your name for personalized interaction
+3. **Select Avatar**: Choose between Ella or Kay
+4. **Choose Language**: Select your preferred language from 10 available options
+5. **Start Video Call**: Begin your emergency assistance session
 
-```typescript
-const REPLICA_IDS = {
-  Alice: 'your_replica_id_here',
-  Brian: 'your_replica_id_here',
-  Greg: 'your_replica_id_here'
-} as const;
+### During an Emergency
+1. **Stay Calm**: The AI avatar will guide you through each step
+2. **Follow Instructions**: Listen carefully and confirm each completed step
+3. **Use Emergency Buttons**: Access quick-dial emergency services if needed
+4. **Ask Questions**: The AI can clarify instructions and provide additional help
 
-const PERSONA_IDS = {
-  Doctor: 'your_persona_id_here',
-  Therapist: 'your_persona_id_here',
-  Mechanic: 'your_persona_id_here',
-  PersonalTrainer: 'your_persona_id_here',
-  Tutor: 'your_persona_id_here'
-} as const;
-```
+### Emergency Features
+- **Floating Emergency Panel**: Always visible emergency service buttons
+- **One-Touch Calling**: Direct access to emergency services
+- **Multi-Language Support**: Critical for diverse communities
+- **Offline Capability**: Core functionality works without internet
 
-You can find your replica and persona IDs in the [Tavus Developer Portal](https://docs.tavus.io/sections/introduction).
+---
 
-4. Start the development server:
-```bash
-npm run dev
-```
+## 📋 Roadmap
 
-Visit [http://localhost:3000](http://localhost:3000) to see your application.
+### Version 2.0 Features
+- [ ] Advanced medical procedures and guidance
+- [ ] Integration with local emergency services
+- [ ] Offline voice recognition
+- [ ] Medical history integration
+- [ ] Family emergency contacts
+- [ ] GPS location sharing with emergency services
 
-## Project Structure
+### Future Enhancements
+- [ ] AR-guided first aid instructions
+- [ ] Integration with wearable devices
+- [ ] Professional medical consultation
+- [ ] Community first aid reporting
+- [ ] Advanced analytics and insights
 
-```
-├── app/
-│   ├── api/          # API routes
-│   ├── components/   # UI components
-│   ├── lib/          # Utility functions
-│   └── styles/       # Global styles
-├── public/           # Static assets
-└── types/           # TypeScript types
-```
+---
 
-## Customization
+## 📄 License
 
-This template uses shadcn/ui components which can be customized in the `components/ui` directory. The main theme and styling can be adjusted in `tailwind.config.ts`.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Deployment
+---
 
-Deploy your application using [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example):
+## 🆘 Support
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/alexbehrens/tavus-public-template)
+If you need help or have questions:
 
-## Learn More
+- **Documentation**: Check this README and inline code comments
+- **Issues**: Open a GitHub issue for bugs or feature requests
+- **Emergency**: This app is for guidance only - always call professional emergency services for serious situations
 
-To learn more about the technologies used in this template:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Tavus Documentation](https://docs.tavus.io/sections/introduction)
-- [Tavus CVI Overview](https://www.tavus.io/product/conversational-video)
-- [Tailwind CSS](https://tailwindcss.com/docs)
-- [shadcn/ui](https://ui.shadcn.com)
-- [Framer Motion](https://www.framer.com/motion/)
+## ⚠️ Disclaimer
 
-## License
+**IMPORTANT**: This application provides general first aid guidance and should not replace professional medical advice, diagnosis, or treatment. In serious emergencies, always contact professional emergency services immediately. The developers are not responsible for any outcomes resulting from the use of this application.
 
-MIT © Tavus Inc.
+---
+
+## 🙏 Acknowledgments
+
+- **Tavus** for providing advanced AI avatar technology
+- **OpenAI** for conversational AI capabilities
+- **Emergency Services** worldwide for their life-saving work
+- **First Aid Organizations** for establishing emergency response protocols
+- **Open Source Community** for tools and libraries that made this possible
+
+---
+
+**Built with ❤️ for emergency preparedness and community safety**
