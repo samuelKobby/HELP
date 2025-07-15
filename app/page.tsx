@@ -22,12 +22,16 @@ interface ConversationResponse {
 const TAVUS_API_KEY = process.env.TAVUS_API_KEY
 const REPLICA_IDS = {
   Ella: 'rfb51183fe',
+  // rfb51183fe
   Kay: 'rfa77d37dfeb'
+  // rfa77d37dfeb
 } as const;
 
 const PERSONA_IDS = {
-  Ella: 'pf7ee746fd8a',
-  Kay: 'pc86ba205bea'
+  Ella: 'pa33088155d1',
+  // pf7ee746fd8a
+  Kay: 'p0d33655e5df'
+  // pc86ba205bea
 } as const;
 
 // Add languages array
