@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Ambulance, Flame, ShieldAlert, X, AlertTriangle } from 'lucide-react'
 import axios from 'axios'
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -22,36 +23,83 @@ interface ConversationResponse {
 const TAVUS_API_KEY = process.env.TAVUS_API_KEY
 const REPLICA_IDS = {
   Ella: 'rfb51183fe',
-  // rfb51183fe
   Kay: 'rfa77d37dfeb'
-  // rfa77d37dfeb
 } as const;
 
 const PERSONA_IDS = {
   Ella: 'pf7ee746fd8a',
-  // pa33088155d1
   Kay: 'pc86ba205bea'
-  // p0d33655e5df
+} as const;
+
+// First Aid Scenarios - maps scenario name to which avatar/persona to use
+const FIRST_AID_SCENARIOS = {
+  'CPR & Cardiac Arrest': { avatar: 'Ella', displayName: 'CPR & Cardiac Arrest' },
+  'Severe Bleeding': { avatar: 'Kay', displayName: 'Severe Bleeding' },
+  'Choking': { avatar: 'Ella', displayName: 'Choking' },
+  'Burns': { avatar: 'Kay', displayName: 'Burns' },
+  'Fractures': { avatar: 'Ella', displayName: 'Fractures' },
+  'Shock': { avatar: 'Kay', displayName: 'Shock' },
 } as const;
 
 // Illustration mapping for different first aid scenarios
-// Using real images from publicly available sources
 const ILLUSTRATION_SETS = {
-  Ella: [
-    { id: 1, title: 'Step 1: Check Responsiveness', image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80', description: 'Tap shoulders and shout - Check if person responds' },
-    { id: 2, title: 'Step 2: Call for Help', image: 'https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=800&q=80', description: 'Call emergency services (193) immediately' },
-    { id: 3, title: 'Step 3: Open Airway', image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&q=80', description: 'Tilt head back, lift chin to open airway' },
-    { id: 4, title: 'Step 4: CPR - Compressions', image: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=800&q=80', description: 'Push hard and fast - 30 compressions at center of chest' },
-    { id: 5, title: 'Step 5: Rescue Breaths', image: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=800&q=80', description: 'Give 2 rescue breaths - watch chest rise' },
-    { id: 6, title: 'Step 6: Continue CPR', image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&q=80', description: 'Repeat 30:2 cycle until help arrives' },
+  'CPR & Cardiac Arrest': [
+    { id: 0, title: 'CPR Tutorial Video', video: 'https://www.youtube.com/embed/lKLb93wm6AM?autoplay=1&loop=1&playlist=lKLb93wm6AM&mute=1', description: 'Watch this complete CPR demonstration' },
+    { id: 1, title: 'CPR Tutorial Video 2', video: 'https://www.youtube.com/embed/fZzVP2PqcGU?autoplay=1&loop=1&playlist=fZzVP2PqcGU&mute=1', description: 'Additional CPR training demonstration' },
+    { id: 2, title: 'Step 1: Check Responsiveness', image: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=800&q=80', description: 'Tap shoulders and shout - Check if person responds' },
+    { id: 3, title: 'Step 2: Call for Help', image: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&q=80', description: 'Call emergency services (193) immediately' },
+    { id: 4, title: 'Step 3: Open Airway', image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&q=80', description: 'Tilt head back, lift chin to open airway' },
+    { id: 5, title: 'Step 4: CPR - Compressions', image: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=800&q=80', description: 'Push hard and fast - 30 compressions at center of chest' },
+    { id: 6, title: 'Step 5: Rescue Breaths', image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&q=80', description: 'Give 2 rescue breaths - watch chest rise' },
+    { id: 7, title: 'Step 6: Continue CPR', image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&q=80', description: 'Repeat 30:2 cycle until help arrives' },
   ],
-  Kay: [
-    { id: 1, title: 'Step 1: Apply Direct Pressure', image: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=800&q=80', description: 'Press firmly on wound with clean cloth' },
-    { id: 2, title: 'Step 2: Elevate Injury', image: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800&q=80', description: 'Raise injured area above heart level' },
-    { id: 3, title: 'Step 3: Keep Pressure', image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=800&q=80', description: 'Maintain firm pressure for 10-15 minutes' },
-    { id: 4, title: 'Step 4: Bandage Wound', image: 'https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=800&q=80', description: 'Wrap bandage firmly but not too tight' },
-    { id: 5, title: 'Step 5: Monitor Circulation', image: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=800&q=80', description: 'Check fingers/toes for warmth and color' },
-    { id: 6, title: 'Step 6: Watch for Shock', image: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=800&q=80', description: 'Keep patient warm and lying down' },
+  'Severe Bleeding': [
+    { id: 0, title: 'Severe Bleeding Video 1', video: 'https://www.youtube.com/embed/kJSnso8T4qs?autoplay=1&loop=1&playlist=kJSnso8T4qs&mute=1', description: 'Learn how to control severe bleeding' },
+    { id: 1, title: 'Severe Bleeding Video 2', video: 'https://www.youtube.com/embed/6_Ruqc8ZINc?autoplay=1&loop=1&playlist=6_Ruqc8ZINc&mute=1', description: 'Additional bleeding control techniques' },
+    { id: 2, title: 'Severe Bleeding Video 3', video: 'https://www.youtube.com/embed/qlUhkuT7xmg?autoplay=1&loop=1&playlist=qlUhkuT7xmg&mute=1', description: 'More bleeding treatment methods' },
+    { id: 3, title: 'Severe Bleeding Video 4', video: 'https://www.youtube.com/embed/SBVpal9c7dY?autoplay=1&loop=1&playlist=SBVpal9c7dY&mute=1', description: 'Advanced bleeding control' },
+    { id: 4, title: 'Severe Bleeding Video 5', video: 'https://www.youtube.com/embed/iVhcW8Gsiq8?autoplay=1&loop=1&playlist=iVhcW8Gsiq8&mute=1', description: 'Emergency bleeding response' },
+    { id: 5, title: 'Severe Bleeding Video 6', video: 'https://www.youtube.com/embed/raIJr1of3is?autoplay=1&loop=1&playlist=raIJr1of3is&mute=1', description: 'Pressure point techniques' },
+    { id: 6, title: 'Severe Bleeding Video 7', video: 'https://www.youtube.com/embed/4aWJCiymkNI?autoplay=1&loop=1&playlist=4aWJCiymkNI&mute=1', description: 'Tourniquet application' },
+    { id: 7, title: 'Severe Bleeding Video 8', video: 'https://www.youtube.com/embed/3oewdtTI9DY?autoplay=1&loop=1&playlist=3oewdtTI9DY&mute=1', description: 'Complete bleeding management guide' },
+  ],
+  'Choking': [
+    { id: 0, title: 'Choking Tutorial Video', video: 'https://www.youtube.com/embed/Nz3-tMkU6d0?autoplay=1&loop=1&playlist=Nz3-tMkU6d0&mute=1', description: 'Watch how to help a choking person' },
+    { id: 1, title: 'Choking Tutorial Video 2', video: 'https://www.youtube.com/embed/KkjLSo4YrXw?autoplay=1&loop=1&playlist=KkjLSo4YrXw&mute=1', description: 'Additional choking first aid techniques' },
+    { id: 2, title: 'Choking Tutorial Video 3', video: 'https://www.youtube.com/embed/ZefcK-aXjLc?autoplay=1&loop=1&playlist=ZefcK-aXjLc&mute=1', description: 'More choking emergency response methods' },
+    { id: 3, title: 'Step 1: Ask "Are You Choking?"', image: 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=800&q=80', description: 'Check if person can speak or cough' },
+    { id: 4, title: 'Step 2: Call for Help', image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80', description: 'Have someone call emergency services' },
+    { id: 5, title: 'Step 3: Give Back Blows', image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80', description: 'Bend person forward, give 5 sharp blows between shoulder blades' },
+    { id: 6, title: 'Step 4: Abdominal Thrusts', image: 'https://images.unsplash.com/photo-1579684453423-f84349ef60b0?w=800&q=80', description: 'Stand behind, thrust inward and upward below ribcage' },
+    { id: 7, title: 'Step 5: Repeat Cycle', image: 'https://images.unsplash.com/photo-1551601651-05d619b3f645?w=800&q=80', description: 'Alternate 5 back blows and 5 abdominal thrusts' },
+    { id: 8, title: 'Step 6: CPR if Unconscious', image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&q=80', description: 'Start CPR if person becomes unconscious' },
+  ],
+  'Burns': [
+    { id: 0, title: 'Burns Treatment Video', video: 'https://www.youtube.com/embed/IAiafkqb7nA?autoplay=1&loop=1&playlist=IAiafkqb7nA&mute=1', description: 'Watch how to treat burns properly' },
+    { id: 1, title: 'Step 1: Stop Burning Process', image: 'https://images.unsplash.com/photo-1614935151651-0bea6508db6b?w=800&q=80', description: 'Remove from heat source, extinguish flames' },
+    { id: 2, title: 'Step 2: Cool the Burn', image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80', description: 'Run cool (not cold) water over burn for 10-20 minutes' },
+    { id: 3, title: 'Step 3: Remove Jewelry/Clothing', image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=800&q=80', description: 'Remove before swelling occurs (if not stuck)' },
+    { id: 4, title: 'Step 4: Cover the Burn', image: 'https://images.unsplash.com/photo-1603398938939-e55c8c6b9c3d?w=800&q=80', description: 'Use sterile, non-stick dressing' },
+    { id: 5, title: 'Step 5: Pain Management', image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=800&q=80', description: 'Give over-the-counter pain reliever if appropriate' },
+    { id: 6, title: 'Step 6: Seek Medical Help', image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&q=80', description: 'Get medical attention for serious burns' },
+  ],
+  'Fractures': [
+    { id: 0, title: 'Fracture Treatment Video', video: 'https://www.youtube.com/embed/_egnX98lF_M?autoplay=1&loop=1&playlist=_egnX98lF_M&mute=1', description: 'Learn how to treat fractures and broken bones' },
+    { id: 1, title: 'Step 1: Assess the Injury', image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80', description: 'Check for deformity, swelling, severe pain' },
+    { id: 2, title: 'Step 2: Call for Help', image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80', description: 'Call emergency services for serious fractures' },
+    { id: 3, title: 'Step 3: Immobilize the Area', image: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=800&q=80', description: 'Prevent movement of injured area' },
+    { id: 4, title: 'Step 4: Apply Splint', image: 'https://images.unsplash.com/photo-1599045118108-bf9954418b76?w=800&q=80', description: 'Use rigid materials to support the injury' },
+    { id: 5, title: 'Step 5: Apply Ice', image: 'https://images.unsplash.com/photo-1610349781661-c0863e141be2?w=800&q=80', description: 'Ice pack wrapped in cloth to reduce swelling' },
+    { id: 6, title: 'Step 6: Treat for Shock', image: 'https://images.unsplash.com/photo-1584362917165-526a968579e8?w=800&q=80', description: 'Keep person warm and lying down' },
+  ],
+  'Shock': [
+    { id: 0, title: 'Shock Treatment Video', video: 'https://www.youtube.com/embed/byrt0f3kvVE?autoplay=1&loop=1&playlist=byrt0f3kvVE&mute=1', description: 'Learn how to treat shock in emergencies' },
+    { id: 1, title: 'Step 1: Call Emergency Services', image: 'https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?w=800&q=80', description: 'Call 193 immediately for medical emergency' },
+    { id: 2, title: 'Step 2: Lay Person Down', image: 'https://images.unsplash.com/photo-1584362917165-526a968579e8?w=800&q=80', description: 'Position flat on back with legs elevated 12 inches' },
+    { id: 3, title: 'Step 3: Keep Warm', image: 'https://images.unsplash.com/photo-1621892613780-a8f2e6b0c6f4?w=800&q=80', description: 'Cover with blanket to maintain body temperature' },
+    { id: 4, title: 'Step 4: Do Not Give Food/Drink', image: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=800&q=80', description: 'Nothing by mouth, even if person is thirsty' },
+    { id: 5, title: 'Step 5: Monitor Breathing', image: 'https://images.unsplash.com/photo-1615461066159-fea0960485d5?w=800&q=80', description: 'Check breathing and pulse regularly' },
+    { id: 6, title: 'Step 6: Reassure the Person', image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800&q=80', description: 'Stay calm and provide comfort until help arrives' },
   ],
 } as const;
 
@@ -107,16 +155,15 @@ const getUseCaseColorClasses = (useCase: string) => {
 
 // Replace the TavusAPI implementation
 const TavusAPI = {
-  createVideoCall: async (avatar: string, useCase: string, language: string, name: string) => {
+  createVideoCall: async (avatar: string, scenario: string, language: string, name: string) => {
     try {
       const response = await axios.post('/api/tavus', {
         replica_id: REPLICA_IDS[avatar as keyof typeof REPLICA_IDS],
-        persona_id: PERSONA_IDS[useCase as keyof typeof PERSONA_IDS],
-        conversation_name: `${name}'s conversation with ${avatar} as ${useCase}`,
-        conversational_context: `This is a conversation in ${language} between the user${name} and you, ${avatar}, who is acting as a ${useCase}. Start by saying "Hello ${name}!" first.`
+        persona_id: PERSONA_IDS[avatar as keyof typeof PERSONA_IDS],
+        conversation_name: `${name}'s ${scenario} First Aid Session with ${avatar}`,
+        conversational_context: `This is a first aid training conversation in ${language}. The user ${name} needs help with ${scenario}. You are ${avatar}, a trained first aid instructor. Guide them through the steps clearly and calmly. Start by saying "Hello ${name}, I'm here to help you with ${scenario}. Let's go through this step by step."`
       });
-//change conversational context to be API based?
-//convert csv to text?
+      
       return { 
         id: response.data.conversation_id, 
         url: response.data.conversation_url 
@@ -208,19 +255,17 @@ function Layout({ children }: { children: React.ReactNode }) {
 
 export default function Home() {
   const [isStarted, setIsStarted] = useState(false)
-  const [selectedAvatar, setSelectedAvatar] = useState('')
-  const [selectedUseCase, setSelectedUseCase] = useState('')
+  const [selectedScenario, setSelectedScenario] = useState('')
   const [showVideoCall, setShowVideoCall] = useState(false)
   const [videoCallUrl, setVideoCallUrl] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [activeView, setActiveView] = useState<'video' | 'illustrations'>('video')
 
-  const handleAvatarSubmit = async (avatar: string, useCase: string, language: string, name: string) => {
+  const handleScenarioSubmit = async (avatar: string, scenario: string, language: string, name: string) => {
     setIsLoading(true)
-    setSelectedAvatar(avatar)
-    setSelectedUseCase(useCase)
+    setSelectedScenario(scenario)
     try {
-      const response = await TavusAPI.createVideoCall(avatar, useCase, language, name)
+      const response = await TavusAPI.createVideoCall(avatar, scenario, language, name)
       setVideoCallUrl(response.url)
       setShowVideoCall(true)
     } catch (error) {
@@ -273,7 +318,7 @@ export default function Home() {
             className="relative z-10"
           >
             <div className="min-h-screen">
-              <AvatarSelectionWithoutLogo onSubmit={handleAvatarSubmit} />
+              <ScenarioSelection onSubmit={handleScenarioSubmit} />
             </div>
           </motion.div>
         ) : (
@@ -345,7 +390,7 @@ export default function Home() {
                             activeView === 'illustrations' ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
                           }`}
                         >
-                          <IllustrationCarouselFullscreen useCase={selectedUseCase || 'Ella'} />
+                          <IllustrationCarouselFullscreen scenario={selectedScenario || 'CPR & Cardiac Arrest'} />
                         </div>
                       </div>
                     </CardContent>
@@ -395,20 +440,20 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
   )
 }
 
-const avatars = ['Ella', 'Kay']
-const useCases = ['Ella', 'Kay']
+const scenarios = Object.keys(FIRST_AID_SCENARIOS);
+const avatars = ['Ella', 'Kay'];
 
-function AvatarSelectionWithoutLogo({ onSubmit }: { onSubmit: (avatar: string, useCase: string, language: string, name: string) => void }) {
+function ScenarioSelection({ onSubmit }: { onSubmit: (avatar: string, scenario: string, language: string, name: string) => void }) {
   const [selectedAvatar, setSelectedAvatar] = useState('')
-  const [selectedUseCase, setSelectedUseCase] = useState('')
+  const [selectedScenario, setSelectedScenario] = useState('')
   const [selectedLanguage, setSelectedLanguage] = useState('english')
   const [userName, setUserName] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (selectedAvatar && selectedUseCase && userName.trim()) {
-      onSubmit(selectedAvatar, selectedUseCase, selectedLanguage, userName)
+    if (selectedAvatar && selectedScenario && userName.trim()) {
+      onSubmit(selectedAvatar, selectedScenario, selectedLanguage, userName)
     } else {
       alert('Please fill in all fields')
     }
@@ -420,9 +465,9 @@ function AvatarSelectionWithoutLogo({ onSubmit }: { onSubmit: (avatar: string, u
         <Card className="w-full max-w-md shadow-[0_8px_40px_-12px_rgba(236,72,153,0.5)] border border-gray-100 bg-white/90 backdrop-blur-sm">
           <CardHeader className="space-y-2">
             <CardTitle className="text-2xl font-bold text-center text-gray-900">
-              Create Your Video Call
+              First Aid Training
             </CardTitle>
-            <p className="text-center text-gray-500 font-medium">Select your preferences below</p>
+            <p className="text-center text-gray-500 font-medium">Select the emergency scenario you need help with</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -440,7 +485,7 @@ function AvatarSelectionWithoutLogo({ onSubmit }: { onSubmit: (avatar: string, u
               <div className="relative group">
                 <Select onValueChange={setSelectedAvatar}>
                   <SelectTrigger className="w-full rounded-full bg-gray-50 border-gray-200 px-6 py-5 focus:ring-pink-500 focus:border-pink-500 transition-all hover:bg-pink-50">
-                    <SelectValue placeholder="Select Avatar" />
+                    <SelectValue placeholder="Select Instructor" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border border-gray-200 shadow-lg">
                     {avatars.map((avatar) => (
@@ -455,20 +500,20 @@ function AvatarSelectionWithoutLogo({ onSubmit }: { onSubmit: (avatar: string, u
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="relative group">
-                <Select onValueChange={setSelectedUseCase}>
-                  <SelectTrigger className="w-full rounded-full bg-gray-50 border-gray-200 px-6 py-5 focus:ring-pink-500 focus:border-pink-500 transition-all hover:bg-pink-50">
-                    <SelectValue placeholder="Select Use Case" />
+                <Select onValueChange={setSelectedScenario}>
+                  <SelectTrigger className="w-full rounded-full bg-gray-50 border-gray-200 px-6 py-5 focus:ring-pink-500 focus:border-pink-500 transition-all hover:bg-pink-50 text-gray-900">
+                    <SelectValue placeholder="Select Emergency Scenario" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl border border-gray-200 shadow-lg">
-                    {useCases.map((useCase) => (
+                  <SelectContent className="rounded-xl border border-gray-200 shadow-lg max-h-[300px]">
+                    {scenarios.map((scenario) => (
                       <SelectItem 
-                        key={useCase} 
-                        value={useCase}
+                        key={scenario} 
+                        value={scenario}
                         className="focus:bg-pink-50 focus:text-pink-900 cursor-pointer"
                       >
-                        {useCase}
+                        {scenario}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -529,12 +574,12 @@ function LoadingScreenWithoutLogo() {
 }
 
 // Fullscreen Illustration Carousel Component
-function IllustrationCarouselFullscreen({ useCase }: { useCase: string }) {
+function IllustrationCarouselFullscreen({ scenario }: { scenario: string }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
 
-  const illustrations = ILLUSTRATION_SETS[useCase as keyof typeof ILLUSTRATION_SETS] || ILLUSTRATION_SETS.Ella;
+  const illustrations = ILLUSTRATION_SETS[scenario as keyof typeof ILLUSTRATION_SETS] || ILLUSTRATION_SETS['CPR & Cardiac Arrest'];
 
   const handleNext = () => {
     setCurrentStep((prev) => (prev + 1) % illustrations.length);
@@ -577,16 +622,28 @@ function IllustrationCarouselFullscreen({ useCase }: { useCase: string }) {
           transition={{ duration: 0.3 }}
           className="relative w-full h-full"
         >
-          {/* Full-size Image */}
-          <img
-            src={illustrations[currentStep].image}
-            alt={illustrations[currentStep].title}
-            className="w-full h-full object-fill"
-            onError={(e) => {
-              // Fallback to placeholder if image doesn't exist
-              (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"%3E%3Crect fill="%23f3f4f6" width="1200" height="800"/%3E%3Ctext fill="%23ec4899" font-size="32" font-family="Arial" x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"%3E' + illustrations[currentStep].title + '%3C/text%3E%3C/svg%3E';
-            }}
-          />
+          {/* Check if it's a video or image */}
+          {(illustrations[currentStep] as any).video ? (
+            // YouTube Video Embed
+            <iframe
+              src={(illustrations[currentStep] as any).video}
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              title={illustrations[currentStep].title}
+            />
+          ) : (
+            // Full-size Image
+            <img
+              src={(illustrations[currentStep] as any).image}
+              alt={illustrations[currentStep].title}
+              className="w-full h-full object-fill"
+              onError={(e) => {
+                // Fallback to placeholder if image doesn't exist
+                (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"%3E%3Crect fill="%23f3f4f6" width="1200" height="800"/%3E%3Ctext fill="%23ec4899" font-size="32" font-family="Arial" x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"%3E' + illustrations[currentStep].title + '%3C/text%3E%3C/svg%3E';
+              }}
+            />
+          )}
           
           {/* Top Gradient Overlay for Title */}
           <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 via-black/40 to-transparent p-4 text-white">
@@ -673,34 +730,26 @@ function EmergencyButtons() {
           >
             <Button
               onClick={() => handleEmergencyCall('ambulance')}
-              className="w-16 h-16 rounded-full bg-[#3e3e42] hover:bg-[#4e4e52] text-white shadow-sm transition-all hover:-translate-y-1 flex flex-col items-center justify-center p-2 border border-[#5a5a5a]"
+              className="w-12 h-12 rounded-full bg-[#3e3e42] hover:bg-[#4e4e52] text-white shadow-sm transition-all hover:-translate-y-1 flex flex-col items-center justify-center p-2 border border-[#5a5a5a]"
               title="Call Ambulance - 193"
             >
-              <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"/>
-                <rect x="7" y="5" width="6" height="2" fill="#ff4444"/>
-                <rect x="9" y="3" width="2" height="6" fill="#ff4444"/>
-              </svg>
+              <Ambulance className="text-white" size={48} strokeWidth={2} />
             </Button>
             
             <Button
               onClick={() => handleEmergencyCall('fire')}
-              className="w-16 h-16 rounded-full bg-[#3e3e42] hover:bg-[#4e4e52] text-white shadow-sm transition-all hover:-translate-y-1 flex flex-col items-center justify-center p-2 border border-[#5a5a5a]"
+              className="w-12 h-12 rounded-full bg-[#3e3e42] hover:bg-[#4e4e52] text-white shadow-sm transition-all hover:-translate-y-1 flex flex-col items-center justify-center p-2 border border-[#5a5a5a]"
               title="Call Fire Service - 192"
             >
-              <svg className="w-12 h-12" fill="#ff6b35" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd"/>
-              </svg>
+              <Flame className="text-white" size={48} strokeWidth={2} />
             </Button>
 
             <Button
               onClick={() => handleEmergencyCall('police')}
-              className="w-16 h-16 rounded-full bg-[#3e3e42] hover:bg-[#4e4e52] text-white shadow-sm transition-all hover:-translate-y-1 flex flex-col items-center justify-center p-2 border border-[#5a5a5a]"
+              className="w-12 h-12 rounded-full bg-[#3e3e42] hover:bg-[#4e4e52] text-white shadow-sm transition-all hover:-translate-y-1 flex flex-col items-center justify-center p-2 border border-[#5a5a5a]"
               title="Call Police - 191"
             >
-              <svg className="w-12 h-12" fill="#4a90e2" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-              </svg>
+              <ShieldAlert className="text-white" size={48} strokeWidth={2} />
             </Button>
           </motion.div>
         )}
@@ -708,17 +757,13 @@ function EmergencyButtons() {
       
       <Button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-16 h-16 rounded-full shadow-sm transition-all hover:-translate-y-1 flex items-center justify-center bg-[#3e3e42] hover:bg-[#4e4e52] text-white border border-[#5a5a5a]"
+        className="w-12 h-12 rounded-full shadow-sm transition-all hover:-translate-y-1 flex items-center justify-center bg-[#3e3e42] hover:bg-[#4e4e52] text-white border border-[#5a5a5a]"
         title={isExpanded ? "Close Emergency Menu" : "Emergency Services"}
       >
         {isExpanded ? (
-          <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <X size={48} strokeWidth={2} />
         ) : (
-          <svg className="w-12 h-12" fill="#ff4444" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
-          </svg>
+          <AlertTriangle className="text-white" size={48} strokeWidth={2} />
         )}
       </Button>
     </div>
