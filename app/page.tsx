@@ -27,9 +27,11 @@ const REPLICA_IDS = {
 } as const;
 
 const PERSONA_IDS = {
-  Ella: 'pf7ee746fd8a',
-  Kay: 'pc86ba205bea'
+  Ella: 'p0af5c88d110',
+  Kay: 'p524e1341b20'
 } as const;
+
+
 
 // First Aid Scenarios - maps scenario name to which avatar/persona to use
 const FIRST_AID_SCENARIOS = {
