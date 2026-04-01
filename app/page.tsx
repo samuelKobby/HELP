@@ -27,8 +27,8 @@ const REPLICA_IDS = {
 } as const;
 
 const PERSONA_IDS = {
-  Ella: 'p0af5c88d110',
-  Kay: 'p524e1341b20'
+  Ella: 'p814f0f40f0b',
+  Kay: 'pc94bcfdcb51'
 } as const;
 
 
